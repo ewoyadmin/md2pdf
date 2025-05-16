@@ -1,0 +1,38 @@
+/* Custom styles for markdown to PDF conversion */
+body {
+  font-size: 14px;
+  color: #333;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #0066cc;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+h1 {
+  border-bottom: 1px solid #eaecef;
+  padding-bottom: 0.3em;
+}
+
+blockquote {
+  border-left: 4px solid #ddd;
+  padding-left: 16px;
+  color: #666;
+  margin-left: 0;
+}
+
+a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code {
+  background-color: rgba(27, 31, 35, 0.05);
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+}
