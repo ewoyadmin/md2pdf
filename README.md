@@ -35,6 +35,16 @@ md2pdf input.md -o output.pdf
 md2pdf input.md -s custom.css
 ```
 
+### Read from stdin
+
+Pass `-` as the input (or omit it) to read Markdown from stdin:
+
+```bash
+cat input.md | md2pdf - -o output.pdf
+```
+
+When reading from stdin, the output defaults to `output.pdf` in the current directory and the title defaults to `Document`.
+
 ### Set Document Title
 
 ```bash

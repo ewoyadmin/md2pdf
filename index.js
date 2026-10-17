@@ -11,7 +11,7 @@ program
   .name('md2pdf')
   .description('Convert Markdown files to PDF')
   .version('1.0.0')
-  .argument('<input>', 'Input markdown file path')
+  .argument('[input]', 'Input markdown file path (use "-" or omit to read from stdin)')
   .option('-o, --output <output>', 'Output PDF file path')
   .option('-s, --style <style>', 'Custom CSS file path')
   .option('-t, --title <title>', 'Document title')
@@ -27,19 +27,36 @@ program
 
 program.parse();
 
+async function readStdin() {
+  const chunks = [];
+  for await (const chunk of process.stdin) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString('utf-8');
+}
+
 async function convertToPdf(inputPath, options) {
+  const fromStdin = !inputPath || inputPath === '-';
+
+  if (fromStdin && process.stdin.isTTY) {
+    throw new Error('No input file given and nothing piped to stdin');
+  }
+
   // Validate input file
-  if (!fs.existsSync(inputPath)) {
+  if (!fromStdin && !fs.existsSync(inputPath)) {
     throw new Error(`Input file not found: ${inputPath}`);
   }
 
   // Determine output path
-  const outputPath = options.output || 
-    path.join(path.dirname(inputPath), 
-      `${path.basename(inputPath, path.extname(inputPath))}.pdf`);
+  const outputPath = options.output ||
+    (fromStdin ? 'output.pdf' :
+      path.join(path.dirname(inputPath),
+        `${path.basename(inputPath, path.extname(inputPath))}.pdf`));
 
   // Read markdown content
-  const markdownContent = fs.readFileSync(inputPath, 'utf-8');
+  const markdownContent = fromStdin
+    ? await readStdin()
+    : fs.readFileSync(inputPath, 'utf-8');
   
   // Convert markdown to HTML
   const htmlContent = marked.parse(markdownContent);
@@ -51,7 +68,8 @@ async function convertToPdf(inputPath, options) {
   }
 
   // Create full HTML document
-  const title = options.title || path.basename(inputPath, path.extname(inputPath));
+  const title = options.title ||
+    (fromStdin ? 'Document' : path.basename(inputPath, path.extname(inputPath)));
   const fullHtml = `
     <!DOCTYPE html>
     <html>
